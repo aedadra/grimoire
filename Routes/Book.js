@@ -9,6 +9,6 @@ router.post('/', auth, multer, BookController.createBook);
 router.put('/:id', auth, multer, BookController.addBook);
 router.delete('/:id', auth, BookController.deleteBook);
 router.get('/:id', auth, BookController.getOneBook);
-router.get('/', auth, BookController.getAllBooks);
+router.get('/', BookController.getAllBooks);
 
 module.exports = router;

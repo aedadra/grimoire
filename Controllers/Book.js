@@ -1,7 +1,7 @@
 const Book = require('../models/Book');
 const fs = require('fs');
 
-exports.createThing = (req, res, next) => {
+exports.createBook = (req, res, next) => {
     const bookObject = JSON.parse(req.body.book);
     delete bookObject.id;
     delete bookObject.userId;
@@ -44,14 +44,12 @@ exports.getOneBook = (req, res, next) => {
     Book.findOne({ id: req.params.id })
         .then(Book => res.status(200).json(Book))
         .catch(error => res.status(404).json({ error }));
-    next()
 };
 
 exports.getAllBooks = (req, res, next) => {
     Book.find()
         .then(Books => res.status(200).json(Books))
         .catch(error => res.status(400).json({ error }));
-    next();
 };
 
 exports.modifyBook = (req, res, next) => {

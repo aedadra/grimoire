@@ -13,7 +13,8 @@ exports.createBook = (req, res, next) => {
     });
     book.save()
         .then(() => { res.status(201).json({ message: 'Objet enregistré !' }) })
-        .catch(error => { res.status(400).json({ error }) 
+        .catch(error => {
+            res.status(400).json({ error })
         })
 };
 
@@ -64,7 +65,7 @@ exports.modifyBook = (req, res, next) => {
                     const imagePath = path.join(__dirname, '..', 'images', path.basename(book.imageUrl));
                     fs.unlink(imagePath, (error) => {
                         if (error) {
-                             return ({error})
+                            return ({ error })
                         }
                     });
                 }
@@ -79,7 +80,7 @@ exports.modifyBook = (req, res, next) => {
 };
 
 exports.bestRatedBooks = (req, res, next) => {
-    Book.find().sort({averageRating: -1}).limit(3)
+    Book.find().sort({ averageRating: -1 }).limit(3)
         .then(Books => res.status(200).json(Books))
         .catch(error => res.status(401).json({ error }));
 };
@@ -94,7 +95,7 @@ exports.rateBook = (req, res, next) => {
                 if (book.ratings.find(rating => rating.userId === user)) {
                     res.status(401).json({ message: 'you already noted this book' })
                 } else {
-                    const rate= {
+                    const rate = {
                         userId: user,
                         grade: req.body.rating,
                         _id: req.body._id

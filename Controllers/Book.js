@@ -12,9 +12,11 @@ exports.createBook = (req, res, next) => {
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.newFilename}`,
     });
     book.save()
-        .then(() => { res.status(201).json({ message: 'Objet enregistré !' }) })
+        .then(() => { 
+            res.status(201).json({ message: 'Objet enregistré !' }) 
+        })
         .catch(error => {
-            res.status(400).json({ error })
+            res.status(400).json(error)
         })
 };
 
@@ -22,31 +24,31 @@ exports.deleteBook = (req, res, next) => {
     Book.findOne({ _id: req.params.id })
         .then(book => {
             if (book.userId != req.auth.userId) {
-                res.status(401).json({ message: 'utilisateur non authorisé' });
+                res.status(401).json({message: 'utilisateur non authorisé' });
             } else {
                 const filename = book.imageUrl.split('/images/')[1];
                 fs.unlink(`images/${filename}`, () => {
                     Book.deleteOne({ _id: req.params.id })
                         .then(() => { res.status(200).json({ message: 'Objet supprimé !' }) })
-                        .catch(error => res.status(401).json({ error }));
+                        .catch (error => res.status(400).json(error));
                 });
             }
         })
         .catch(error => {
-            res.status(500).json({ error });
+            res.status(500).json(error);
         });
 };
 
 exports.getOneBook = (req, res, next) => {
     Book.findOne({ _id: req.params.id })
         .then(Book => res.status(200).json(Book))
-        .catch(error => res.status(404).json({ error }));
+        .catch(error => res.status(404).json(error));
 };
 
 exports.getAllBooks = (req, res, next) => {
     Book.find()
         .then(Books => res.status(200).json(Books))
-        .catch(error => res.status(400).json({ error }));
+        .catch(error => res.status(400).json(error));
 };
 
 exports.modifyBook = (req, res, next) => {
@@ -55,7 +57,6 @@ exports.modifyBook = (req, res, next) => {
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.newFilename}`
     } : { ...req.body };
 
-    delete bookObject._userId;
     Book.findOne({ _id: req.params.id })
         .then((book) => {
             if (book.userId != req.auth.userId) {
@@ -65,24 +66,26 @@ exports.modifyBook = (req, res, next) => {
                     const imagePath = path.join(__dirname, '..', 'images', path.basename(book.imageUrl));
                     fs.unlink(imagePath, (error) => {
                         if (error) {
-                            return ({ error })
+                            return (error)
                         }
                     });
                 }
                 Book.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id })
                     .then(() => res.status(200).json({ message: 'Objet modifié!' }))
-                    .catch(error => res.status(401).json({ error }));
+                    .catch(error => {
+                        res.status(400).json(error);
+                    });
             }
         })
         .catch((error) => {
-            res.status(400).json({ error });
+            res.status(400).json(error);
         });
 };
 
 exports.bestRatedBooks = (req, res, next) => {
     Book.find().sort({ averageRating: -1 }).limit(3)
         .then(Books => res.status(200).json(Books))
-        .catch(error => res.status(401).json({ error }));
+        .catch(error => res.status(401).json(error));
 };
 
 exports.rateBook = (req, res, next) => {
@@ -93,7 +96,7 @@ exports.rateBook = (req, res, next) => {
         Book.findOne({ _id: req.params.id })
             .then(book => {
                 if (book.ratings.find(rating => rating.userId === user)) {
-                    res.status(401).json({ message: 'you already noted this book' })
+                    res.status(403).json({ message: 'you already noted this book' })
                 } else {
                     const rate = {
                         userId: user,
@@ -115,10 +118,10 @@ exports.rateBook = (req, res, next) => {
                         { $push: { ratings: rate }, averageRating: updateAverage },
                         { new: true }
                     )
-                        .then(updatedBook => res.status(201).json(updatedBook))
-                        .catch(error => res.status(401).json({ error }));
+                    .then(updatedBook => res.status(201).json(updatedBook))
+                    .catch(error => res.status(400).json(error));
                 };
             })
-            .catch(error => res.status(401).json({ error }));
+            .catch(error => res.status(400).json(error));
     }
 };

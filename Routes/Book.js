@@ -1,7 +1,7 @@
 const express = require('express');
 const BookController = require('../Controllers/Book');
 const auth = require('../Middlewares/auth');
-const multer = require('../Middlewares/multer-config')
+const multer = require('../Middlewares/multer-config');
 const sharp = require('../Middlewares/sharp');
 const router = express.Router();
 

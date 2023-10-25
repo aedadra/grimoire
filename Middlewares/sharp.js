@@ -1,7 +1,6 @@
 const sharp = require('sharp');
 const fs = require('fs');
 
-
 module.exports = async (req, res, next) => {
     if (!req.file) {
         return next()
@@ -24,7 +23,7 @@ module.exports = async (req, res, next) => {
 		next();
 
     } catch {
-        (error) => res.status(400).json(error);
+        (error) => res.status(500).json(error);
         fs.unlink(req.file.path, (error) => {
 			if(error) {
                 return error;

@@ -22,7 +22,7 @@ exports.deleteBook = (req, res, next) => {
     Book.findOne({ _id: req.params.id })
         .then(book => {
             if (book.userId != req.auth.userId) {
-                res.status(401).json({ message: 'user not allowed' });
+                res.status(403).json({ message: 'user not allowed' });
             } else {
                 const filename = book.imageUrl.split('/images/')[1];
                 fs.unlink(`images/${filename}`, () => {
@@ -31,13 +31,13 @@ exports.deleteBook = (req, res, next) => {
                             res.status(200).json({ message: 'object deleted !' }) 
                         })
                         .catch(error => 
-                            res.status(400).json(error)
+                            res.status(500).json(error)
                         );
                 });
             };
         })
         .catch(error => {
-            res.status(500).json(error);
+            res.status(404).json(error);
         });
 };
 
@@ -50,7 +50,7 @@ exports.getOneBook = (req, res, next) => {
 exports.getAllBooks = (req, res, next) => {
     Book.find()
         .then(Books => res.status(200).json(Books))
-        .catch(error => res.status(400).json(error));
+        .catch(error => res.status(500).json(error));
 };
 
 exports.modifyBook = (req, res, next) => {
@@ -63,7 +63,7 @@ exports.modifyBook = (req, res, next) => {
     Book.findOne({ _id: req.params.id })
         .then((book) => {
             if (book.userId != req.auth.userId) {
-                res.status(401).json({ message: 'user not allowed' });
+                res.status(403).json({ message: 'user not allowed' });
             } else {
                 if (req.file) {
                     const imagePath = path.join(__dirname, '..', 'images', path.basename(book.imageUrl));
@@ -78,25 +78,25 @@ exports.modifyBook = (req, res, next) => {
                         res.status(200).json({ message: 'Object modified!' })
                     })
                     .catch(error => {
-                        res.status(400).json(error);
+                        res.status(500).json(error);
                     });
             };
         })
         .catch((error) => {
-            res.status(400).json(error);
+            res.status(404).json(error);
         });
 };
 
 exports.bestRatedBooks = (req, res, next) => {
     Book.find().sort({ averageRating: -1 }).limit(3)
         .then(Books => res.status(200).json(Books))
-        .catch(error => res.status(400).json(error));
+        .catch(error => res.status(404).json(error));
 };
 
 exports.rateBook = (req, res, next) => {
     const user = req.body.userId;
     if (user !== req.auth.userId) {
-        res.status(401).json({ message: 'user not allowed' })
+        res.status(403).json({ message: 'user not allowed' })
     } else {
         Book.findOne({ _id: req.params.id })
             .then(book => {
@@ -124,9 +124,9 @@ exports.rateBook = (req, res, next) => {
                         { new: true }
                     )
                     .then(updatedBook => res.status(201).json(updatedBook))
-                    .catch(error => res.status(400).json(error));
+                    .catch(error => res.status(404).json(error));
                 };
             })
-            .catch(error => res.status(400).json(error));
+            .catch(error => res.status(404).json(error));
     };
 };
